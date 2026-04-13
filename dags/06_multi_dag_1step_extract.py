@@ -1,9 +1,11 @@
+'''
+ DAG -> DAG 작동 시키는(오퍼레이터) 트리거 필요함 -> 핵심
+'''
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import logging
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from airflow.providers.mysql.hooks.mysql import MySqlHook
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator # 핵심
 import json
 import random
 import pandas as pd
@@ -56,3 +58,15 @@ with DAG(
         task_id = "extract",
         python_callable = _extract
     )
+    # 신규 추가 오퍼레이터
+    # 다음 dag을 실행시키는 트리거 발동하는 역활
+    task_trigger_transform_dag_run = TriggerDagRunOperator(
+        task_id = "trigger_transform",
+        # 트리거 대상
+        # 전달할 데이터
+        # dag 수행시간 세팅
+        # 기타 설정
+    )
+
+    # 의존성
+    task_extract >> task_trigger_transform_dag_run
