@@ -95,6 +95,7 @@ def _load(**kwargs):
     mysql_hook = MySqlHook(mysql_conn_id='mysql_default')
     conn       = mysql_hook.get_conn() # 커넥션 획득 -> I/o 영향 있음(예외처리등 필요, with문)
     # 7. 전체를 try ~ except로 감싸기(I/O)
+    # 실제는 실패 작업인데, 성공으로 오인할수 있다 -> 예외 던지기 필요함
     try:
         # 4. 커서를 획득하여 
         with conn.cursor() as cursor:        
@@ -107,7 +108,7 @@ def _load(**kwargs):
             # 여러 데이터를 한번에 넣을때 유용 => executemany() 대응
             params = [
                 ( data['sensor_id'],     data['timestamp'], 
-                  data['temperature_c'], data['temperature_f'] )
+                  data['temperature'], data['temperature_f'] )
                 for _, data in df.iterrows() # 데이터가 없을때까지 반복함 -> 데이터가 한세트씩 추출됨
             ]
             logging.info(f'입력할 데이터(파라미터) {params}')
@@ -117,7 +118,7 @@ def _load(**kwargs):
             logging.info('mysql에 적제 완료')
             pass        
     except Exception as e:
-        logging.info(f'적제 오류 : {e}')
+        logging.info(f'적제 오류 : {e}') # 예외 던지기로 변경 필요(리뷰때 시도)
         pass
     finally:
         # 5. 연결 종료
