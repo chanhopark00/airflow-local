@@ -92,7 +92,7 @@ def _api_service_call(**kwargs):
     # 1. 이전 task의 결과물 획득 
     #    (차후 -> 데이터레이크(s3), athena, redshift, opensearch(엘라스틱서치 aws버전),..등 서비스 통해서 획득)
     ti         = kwargs['ti']
-    users_data = ti.xcom_pull(task_ids='task_create_dummy_data')
+    users_data = ti.xcom_pull(task_ids='task_extract_data')
     logging.info(f'요청시 전달 데이터 {users_data}')
     # 2. 신용 평가 요청 및 응답 -> api 호출 (차후 LLM 모델과 연계 가능) -> 통신 -> I/O -> 예외처리
     try:
